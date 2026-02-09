@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+  <meta name="description" content="Interactive flashcards for learning global population and demographic facts. Study countries, populations, and statistics." />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Quick Facts Flashcards</title>
+  <style>
+    body { 
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
+      margin: 0; 
+      padding: 24px;
+      background: #fafafa;
+    }
+    @media (max-width: 600px) {
+      body { padding: 16px; }
+      .text { font-size: 24px; }
+      .card { min-height: 180px; padding: 20px; }
+    }
+    .wrap { max-width: 720px; margin: 0 auto; display: grid; gap: 16px; }
+    .card {
+      border: 2px solid #111;
+      border-radius: 16px;
+      padding: 28px;
+      min-height: 220px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      user-select: none;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card:active {
+      transform: scale(0.98);
+    }
+    .card:focus {
+      outline: 3px solid #4f7cff;
+      outline-offset: 2px;
+    }
+    .text { font-size: 28px; line-height: 1.2; }
+    .meta { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; opacity: 0.75; }
+    .btns { display: flex; gap: 12px; }
+    button {
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px solid #111;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s, transform 0.1s;
+      touch-action: manipulation;
+      min-height: 44px; /* Better touch target */
+    }
+    button:hover:not(:disabled) {
+      background: #f5f5f5;
+    }
+    button:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <div id="status">Card 1 / 1</div>
+      <div id="side">Front</div>
+    </div>
+
+    <div id="card" class="card" role="button" tabindex="0" aria-label="Flashcard (click to flip)">
+      <div id="cardText" class="text"></div>
+    </div>
+
+    <div class="btns">
+      <button id="backBtn">⬅ Back</button>
+      <button id="flipBtn">Flip</button>
+      <button id="nextBtn">Next ➡</button>
+    </div>
+
+    <div style="font-size: 13px; opacity: 0.75;">
+      Click the card to flip. Keyboard: Left/Right = back/next, Space/Enter = flip.
+    </div>
+  </div>
+
+  <script>
+    // Your flashcards (front -> back)
+    const cards = [
+      { front: "Global population", back: "8 billion" },
+      { front: "United States population", back: "350 million" },
+      { front: "United States household size", back: "2.5 people per household" },
+      { front: "United States average life expectancy", back: "80 years" },
+      { front: "United States median household income", back: "$100,000" },
+      { front: "Brazil population", back: "220 million" },
+      { front: "Mexico population", back: "125 million" },
+      { front: "Canada population", back: "40 million" },
+      { front: "China population", back: "1.4 billion" },
+      { front: "India population", back: "1.4 billion" },
+      { front: "Russia population", back: "150 million" },
+      { front: "Japan population", back: "125 million" },
+      { front: "Germany population", back: "80 million" },
+      { front: "UK population", back: "60 million" },
+      { front: "France population", back: "60 million" },
+      { front: "Australia population", back: "25 million" }
+    ];
+
+    let i = 0;
+    let flipped = false;
+
+    const cardEl = document.getElementById("card");
+    const cardTextEl = document.getElementById("cardText");
+    const statusEl = document.getElementById("status");
+    const sideEl = document.getElementById("side");
+    const backBtn = document.getElementById("backBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const flipBtn = document.getElementById("flipBtn");
+
+    function render() {
+      if (cards.length === 0) {
+        cardTextEl.textContent = "No cards available";
+        sideEl.textContent = "";
+        statusEl.textContent = "Card 0 / 0";
+        backBtn.disabled = true;
+        nextBtn.disabled = true;
+        return;
+      }
+      const current = cards[i];
+      cardTextEl.textContent = flipped ? current.back : current.front;
+      sideEl.textContent = flipped ? "Back" : "Front";
+      statusEl.textContent = `Card ${i + 1} / ${cards.length}`;
+      backBtn.disabled = (i === 0);
+      nextBtn.disabled = (i === cards.length - 1);
+    }
+
+    function flip() {
+      flipped = !flipped;
+      render();
+    }
+
+    function go(delta) {
+      const nextIndex = i + delta;
+      if (nextIndex < 0 || nextIndex >= cards.length) return;
+      i = nextIndex;
+      flipped = false; // always reset to front on navigation
+      render();
+    }
+
+    cardEl.addEventListener("click", flip);
+    flipBtn.addEventListener("click", flip);
+    backBtn.addEventListener("click", () => go(-1));
+    nextBtn.addEventListener("click", () => go(1));
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") go(-1);
+      if (e.key === "ArrowRight") go(1);
+      if (e.key === " " || e.key === "Enter") {
+        // Only prevent default if card is focused or no input is active
+        if (document.activeElement === cardEl || !(document.activeElement instanceof HTMLInputElement)) {
+          e.preventDefault();
+          flip();
+        }
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
